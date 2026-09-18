@@ -1,44 +1,36 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
-	"os"
-	"time"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+
+	"github.com/leomarqueseh/kestrel/internal/config"
+	"github.com/leomarqueseh/kestrel/internal/health"
+	"github.com/leomarqueseh/kestrel/internal/version"
 )
 
-type healthResponse struct {
-	Status  string `json:"status"`
-	Service string `json:"service"`
-	Time    string `json:"time"`
-}
-
-func healthHandler(w http.ResponseWriter, r *http.Request) {
-	response := healthResponse{
-		Status:  "ok",
-		Service: "kestrel-api",
-		Time:    time.Now().UTC().Format(time.RFC3339),
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
-}
-
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
+	cfg := config.Load()
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/health", healthHandler)
+	healthHandler := health.NewHandler(health.NewService())
+	versionHandler := version.NewHandler(version.NewService())
 
-	addr := ":" + port
-	log.Printf("kestrel-api listening on %s", addr)
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
 
-	if err := http.ListenAndServe(addr, mux); err != nil {
+	r.Get("/health", healthHandler.Check)
+	r.Route("/api/v1", func(r chi.Router) {
+		r.Get("/version", versionHandler.Get)
+	})
+
+	addr := ":" + cfg.Port
+	log.Printf("kestrel-api listening on %s (env=%s)", addr, cfg.Env)
+
+	if err := http.ListenAndServe(addr, r); err != nil {
 		log.Fatalf("server failed: %v", err)
 	}
 }
