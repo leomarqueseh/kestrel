@@ -1,21 +1,35 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/joho/godotenv"
 
 	"github.com/leomarqueseh/kestrel/internal/config"
 	"github.com/leomarqueseh/kestrel/internal/health"
+	"github.com/leomarqueseh/kestrel/internal/platform/postgres"
 	"github.com/leomarqueseh/kestrel/internal/version"
 )
 
 func main() {
-	cfg := config.Load()
+	// .env is optional in production (real env vars take over), but convenient
+	// for local development — the error is intentionally ignored here.
+	_ = godotenv.Load()
 
-	healthHandler := health.NewHandler(health.NewService())
+	cfg := config.Load()
+	ctx := context.Background()
+
+	dbPool, err := postgres.NewPool(ctx, cfg.DatabaseURL)
+	if err != nil {
+		log.Fatalf("database connection failed: %v", err)
+	}
+	defer dbPool.Close()
+
+	healthHandler := health.NewHandler(health.NewService(dbPool))
 	versionHandler := version.NewHandler(version.NewService())
 
 	r := chi.NewRouter()

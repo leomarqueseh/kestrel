@@ -14,7 +14,7 @@ func NewHandler(service *Service) *Handler {
 }
 
 func (h *Handler) Check(w http.ResponseWriter, r *http.Request) {
-	status := h.service.Check()
+	status := h.service.Check(r.Context())
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
