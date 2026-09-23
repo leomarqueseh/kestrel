@@ -11,11 +11,13 @@ import (
 	"github.com/go-chi/httprate"
 	"github.com/joho/godotenv"
 
+	"github.com/leomarqueseh/kestrel/internal/asset"
 	"github.com/leomarqueseh/kestrel/internal/auth"
 	"github.com/leomarqueseh/kestrel/internal/config"
 	"github.com/leomarqueseh/kestrel/internal/health"
 	"github.com/leomarqueseh/kestrel/internal/platform/postgres"
 	"github.com/leomarqueseh/kestrel/internal/project"
+	"github.com/leomarqueseh/kestrel/internal/scan"
 	"github.com/leomarqueseh/kestrel/internal/target"
 	"github.com/leomarqueseh/kestrel/internal/version"
 )
@@ -35,11 +37,16 @@ func main() {
 	versionHandler := version.NewHandler(version.NewService())
 
 	tokenIssuer := auth.NewTokenIssuer(cfg.JWTSecret)
-	authService := auth.NewService(auth.NewPostgresRepository(dbPool), tokenIssuer)
-	authHandler := auth.NewHandler(authService)
+	authHandler := auth.NewHandler(auth.NewService(auth.NewPostgresRepository(dbPool), tokenIssuer))
 
 	projectHandler := project.NewHandler(project.NewService(project.NewPostgresRepository(dbPool)))
-	targetHandler := target.NewHandler(target.NewService(target.NewPostgresRepository(dbPool)))
+
+	targetRepo := target.NewPostgresRepository(dbPool)
+	targetHandler := target.NewHandler(target.NewService(targetRepo))
+
+	assetRepo := asset.NewPostgresRepository(dbPool)
+	scanRepo := scan.NewPostgresRepository(dbPool)
+	scanHandler := scan.NewHandler(scan.NewService(scanRepo, assetRepo, targetRepo), assetRepo)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -56,7 +63,6 @@ func main() {
 			r.Post("/logout", authHandler.Logout)
 		})
 
-		// Everything below requires a valid access token.
 		r.Group(func(r chi.Router) {
 			r.Use(auth.RequireAuth(tokenIssuer))
 
@@ -70,7 +76,6 @@ func main() {
 				r.Get("/", projectHandler.List)
 
 				r.Route("/{projectID}/targets", func(r chi.Router) {
-					// Only admin/analyst can propose new targets.
 					r.With(auth.RequireRole(auth.RoleAdmin, auth.RoleAnalyst)).Post("/", targetHandler.Create)
 					r.Get("/", targetHandler.ListByProject)
 				})
@@ -79,9 +84,18 @@ func main() {
 			r.Route("/targets/{targetID}", func(r chi.Router) {
 				r.Get("/", targetHandler.Get)
 				r.With(auth.RequireRole(auth.RoleAdmin, auth.RoleAnalyst)).Delete("/", targetHandler.Delete)
-				// Only admin approves scope — the enforcement gate.
 				r.With(auth.RequireRole(auth.RoleAdmin)).Post("/authorize", targetHandler.Authorize)
+
+				r.Get("/assets", scanHandler.ListAssetsByTarget)
+
+				r.Route("/scans", func(r chi.Router) {
+					r.With(auth.RequireRole(auth.RoleAdmin, auth.RoleAnalyst)).Post("/recon", scanHandler.RunRecon)
+					r.With(auth.RequireRole(auth.RoleAdmin, auth.RoleAnalyst)).Post("/enumeration", scanHandler.RunEnumeration)
+					r.Get("/", scanHandler.ListByTarget)
+				})
 			})
+
+			r.Get("/scans/{scanID}/assets", scanHandler.ListAssets)
 		})
 	})
 
