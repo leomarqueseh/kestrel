@@ -14,11 +14,13 @@ import (
 	"github.com/leomarqueseh/kestrel/internal/asset"
 	"github.com/leomarqueseh/kestrel/internal/auth"
 	"github.com/leomarqueseh/kestrel/internal/config"
+	"github.com/leomarqueseh/kestrel/internal/dashboard"
 	"github.com/leomarqueseh/kestrel/internal/evidence"
 	"github.com/leomarqueseh/kestrel/internal/finding"
 	"github.com/leomarqueseh/kestrel/internal/health"
 	"github.com/leomarqueseh/kestrel/internal/platform/postgres"
 	"github.com/leomarqueseh/kestrel/internal/project"
+	"github.com/leomarqueseh/kestrel/internal/report"
 	"github.com/leomarqueseh/kestrel/internal/scan"
 	"github.com/leomarqueseh/kestrel/internal/target"
 	"github.com/leomarqueseh/kestrel/internal/version"
@@ -41,7 +43,8 @@ func main() {
 	tokenIssuer := auth.NewTokenIssuer(cfg.JWTSecret)
 	authHandler := auth.NewHandler(auth.NewService(auth.NewPostgresRepository(dbPool), tokenIssuer))
 
-	projectHandler := project.NewHandler(project.NewService(project.NewPostgresRepository(dbPool)))
+	projectRepo := project.NewPostgresRepository(dbPool)
+	projectHandler := project.NewHandler(project.NewService(projectRepo))
 
 	targetRepo := target.NewPostgresRepository(dbPool)
 	targetHandler := target.NewHandler(target.NewService(targetRepo))
@@ -51,7 +54,13 @@ func main() {
 	scanHandler := scan.NewHandler(scan.NewService(scanRepo, assetRepo, targetRepo), assetRepo)
 
 	evidenceRepo := evidence.NewPostgresRepository(dbPool)
-	findingHandler := finding.NewHandler(finding.NewService(finding.NewPostgresRepository(dbPool), assetRepo, evidenceRepo))
+	findingRepo := finding.NewPostgresRepository(dbPool)
+	findingHandler := finding.NewHandler(finding.NewService(findingRepo, assetRepo, evidenceRepo))
+
+	reportBuilder := report.NewBuilder(projectRepo, targetRepo, findingRepo, evidenceRepo)
+	reportHandler := report.NewHandler(report.NewService(reportBuilder, report.NewPostgresRepository(dbPool)))
+
+	dashboardHandler := dashboard.NewHandler(dashboard.NewService(dbPool))
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -84,6 +93,9 @@ func main() {
 					r.With(auth.RequireRole(auth.RoleAdmin, auth.RoleAnalyst)).Post("/", targetHandler.Create)
 					r.Get("/", targetHandler.ListByProject)
 				})
+
+				r.Get("/{projectID}/report", reportHandler.Generate)
+				r.Get("/{projectID}/dashboard", dashboardHandler.ForProject)
 			})
 
 			r.Route("/targets/{targetID}", func(r chi.Router) {

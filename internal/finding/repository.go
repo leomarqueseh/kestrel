@@ -14,6 +14,7 @@ type Repository interface {
 	Create(ctx context.Context, f Finding) (*Finding, error)
 	GetByID(ctx context.Context, id string) (*Finding, error)
 	ListByTarget(ctx context.Context, targetID string) ([]Finding, error)
+	ListByProject(ctx context.Context, projectID string) ([]Finding, error)
 	UpdateStatus(ctx context.Context, id string, status Status) error
 }
 
@@ -62,6 +63,36 @@ func (r *postgresRepository) ListByTarget(ctx context.Context, targetID string) 
 		 WHERE s.target_id = $1
 		 ORDER BY f.severity, f.created_at DESC`,
 		targetID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var findings []Finding
+	for rows.Next() {
+		f, err := scanFinding(rows)
+		if err != nil {
+			return nil, err
+		}
+		findings = append(findings, *f)
+	}
+	return findings, rows.Err()
+}
+
+// ListByProject joins all the way from findings to projects, aggregating
+// every finding across every target in a project — the source of truth
+// for report generation.
+func (r *postgresRepository) ListByProject(ctx context.Context, projectID string) ([]Finding, error) {
+	rows, err := r.pool.Query(ctx,
+		`SELECT f.id, f.asset_id, f.title, f.description, f.severity, f.cvss, f.cwe, f.status, f.recommendation, f.created_at
+		 FROM findings f
+		 JOIN assets a ON a.id = f.asset_id
+		 JOIN scans s ON s.id = a.scan_id
+		 JOIN targets t ON t.id = s.target_id
+		 WHERE t.project_id = $1
+		 ORDER BY f.severity, f.created_at DESC`,
+		projectID,
 	)
 	if err != nil {
 		return nil, err
