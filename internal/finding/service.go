@@ -2,26 +2,30 @@ package finding
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/leomarqueseh/kestrel/internal/asset"
+	"github.com/leomarqueseh/kestrel/internal/evidence"
 	"github.com/leomarqueseh/kestrel/internal/nvd"
 )
 
+var ErrInvalidTransition = errors.New("finding: invalid status transition")
+
 type Service struct {
-	repo   Repository
-	assets asset.Repository
+	repo     Repository
+	assets   asset.Repository
+	evidence evidence.Repository
 }
 
-func NewService(repo Repository, assets asset.Repository) *Service {
-	return &Service{repo: repo, assets: assets}
+func NewService(repo Repository, assets asset.Repository, evidenceRepo evidence.Repository) *Service {
+	return &Service{repo: repo, assets: assets, evidence: evidenceRepo}
 }
 
-// Assess correlates every network-service asset discovered for targetID
-// against the NVD and records the results as findings. Every finding
-// starts as StatusDetected — nothing here is a confirmed vulnerability.
+// --- Phase 08: assessment (unchanged logic, just carried over) ---
+
 func (s *Service) Assess(ctx context.Context, targetID string) ([]Finding, error) {
 	assets, err := s.assets.ListByTarget(ctx, targetID)
 	if err != nil {
@@ -37,9 +41,8 @@ func (s *Service) Assess(ctx context.Context, targetID string) ([]Finding, error
 		}
 
 		identifier := softwareIdentifier(a)
-
 		if identifier != "" && requestsMade > 0 {
-			time.Sleep(6 * time.Second) // stay within NVD's public rate limit
+			time.Sleep(6 * time.Second)
 		}
 
 		created, err := s.assessAsset(ctx, a, identifier)
@@ -47,7 +50,7 @@ func (s *Service) Assess(ctx context.Context, targetID string) ([]Finding, error
 			requestsMade++
 		}
 		if err != nil {
-			continue // one failed asset shouldn't abort the whole assessment
+			continue
 		}
 		findings = append(findings, created...)
 	}
@@ -55,9 +58,6 @@ func (s *Service) Assess(ctx context.Context, targetID string) ([]Finding, error
 }
 
 func (s *Service) assessAsset(ctx context.Context, a asset.Asset, identifier string) ([]Finding, error) {
-	// No reliable software identifier — status codes like "HTTP 200" don't
-	// count. Recording an informational finding is more honest than
-	// guessing, and avoids noisy, irrelevant NVD keyword matches.
 	if identifier == "" {
 		f, err := s.repo.Create(ctx, Finding{
 			AssetID:        a.ID,
@@ -80,13 +80,9 @@ func (s *Service) assessAsset(ctx context.Context, a asset.Asset, identifier str
 
 	var created []Finding
 	for _, cve := range cves {
-		// Skip matches with no CVSS v3 score: usually pre-2016 CVEs that
-		// keyword search over-matched on generic terms — not reliable
-		// enough to surface as an actionable finding.
 		if cve.CVSS == 0 {
 			continue
 		}
-
 		cvss := cve.CVSS
 		f, err := s.repo.Create(ctx, Finding{
 			AssetID:        a.ID,
@@ -109,9 +105,68 @@ func (s *Service) ListByTarget(ctx context.Context, targetID string) ([]Finding,
 	return s.repo.ListByTarget(ctx, targetID)
 }
 
-// softwareIdentifier picks the best available fingerprint for correlation:
-// a real technology banner (e.g. "Apache/2.4.7 (Ubuntu)") over a generic
-// protocol status like "HTTP 200", which isn't a software identifier at all.
+// --- Phase 09: validation workflow ---
+
+// StartValidation moves a finding from detected to needs_validation,
+// signaling that an analyst has picked it up for manual review.
+func (s *Service) StartValidation(ctx context.Context, id string) (*Finding, error) {
+	f, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if f.Status != StatusDetected {
+		return nil, ErrInvalidTransition
+	}
+	if err := s.repo.UpdateStatus(ctx, id, StatusNeedsValidation); err != nil {
+		return nil, err
+	}
+	return s.repo.GetByID(ctx, id)
+}
+
+// Confirm promotes a finding to confirmed, but only from needs_validation,
+// and only together with evidence — a confirmed finding without evidence
+// is never allowed to exist.
+func (s *Service) Confirm(ctx context.Context, id string, ev evidence.Evidence) (*Finding, error) {
+	f, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if f.Status != StatusNeedsValidation {
+		return nil, ErrInvalidTransition
+	}
+
+	ev.FindingID = id
+	if _, err := s.evidence.Create(ctx, ev); err != nil {
+		return nil, err
+	}
+	if err := s.repo.UpdateStatus(ctx, id, StatusConfirmed); err != nil {
+		return nil, err
+	}
+	return s.repo.GetByID(ctx, id)
+}
+
+// Reject marks a finding as false_positive, recording the reason as
+// evidence for audit purposes even though nothing was confirmed.
+func (s *Service) Reject(ctx context.Context, id, reason string) (*Finding, error) {
+	f, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if f.Status != StatusNeedsValidation {
+		return nil, ErrInvalidTransition
+	}
+
+	if reason != "" {
+		if _, err := s.evidence.Create(ctx, evidence.Evidence{FindingID: id, Notes: "Rejected: " + reason}); err != nil {
+			return nil, err
+		}
+	}
+	if err := s.repo.UpdateStatus(ctx, id, StatusFalsePositive); err != nil {
+		return nil, err
+	}
+	return s.repo.GetByID(ctx, id)
+}
+
 func softwareIdentifier(a asset.Asset) string {
 	if a.Technology != "" {
 		return normalize(a.Technology)
@@ -122,9 +177,6 @@ func softwareIdentifier(a asset.Asset) string {
 	return ""
 }
 
-// normalize turns "Apache/2.4.7 (Ubuntu)" into "Apache 2.4.7" — closer to
-// how NVD's keyword index tokenizes software names, and drops the OS
-// suffix that adds noise without adding precision.
 func normalize(tech string) string {
 	if idx := strings.Index(tech, "("); idx != -1 {
 		tech = tech[:idx]

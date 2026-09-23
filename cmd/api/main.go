@@ -14,6 +14,7 @@ import (
 	"github.com/leomarqueseh/kestrel/internal/asset"
 	"github.com/leomarqueseh/kestrel/internal/auth"
 	"github.com/leomarqueseh/kestrel/internal/config"
+	"github.com/leomarqueseh/kestrel/internal/evidence"
 	"github.com/leomarqueseh/kestrel/internal/finding"
 	"github.com/leomarqueseh/kestrel/internal/health"
 	"github.com/leomarqueseh/kestrel/internal/platform/postgres"
@@ -49,7 +50,8 @@ func main() {
 	scanRepo := scan.NewPostgresRepository(dbPool)
 	scanHandler := scan.NewHandler(scan.NewService(scanRepo, assetRepo, targetRepo), assetRepo)
 
-	findingHandler := finding.NewHandler(finding.NewService(finding.NewPostgresRepository(dbPool), assetRepo))
+	evidenceRepo := evidence.NewPostgresRepository(dbPool)
+	findingHandler := finding.NewHandler(finding.NewService(finding.NewPostgresRepository(dbPool), assetRepo, evidenceRepo))
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -102,6 +104,12 @@ func main() {
 			})
 
 			r.Get("/scans/{scanID}/assets", scanHandler.ListAssets)
+
+			r.Route("/findings/{findingID}", func(r chi.Router) {
+				r.With(auth.RequireRole(auth.RoleAdmin, auth.RoleAnalyst)).Post("/start-validation", findingHandler.StartValidation)
+				r.With(auth.RequireRole(auth.RoleAdmin, auth.RoleAnalyst)).Post("/confirm", findingHandler.Confirm)
+				r.With(auth.RequireRole(auth.RoleAdmin, auth.RoleAnalyst)).Post("/reject", findingHandler.Reject)
+			})
 		})
 	})
 
