@@ -2,238 +2,659 @@
 
 # 🦅 KESTREL
 
-**Plataforma de Avaliação de Segurança e Testes de Invasão**
+**Plataforma de Avaliação de Segurança & Testes de Penetração**
 
 *Observe. Analise. Valide.*
 
-Mais que um scanner — uma plataforma completa de Security Engineering.
+**Mais do que um scanner — uma plataforma completa de Engenharia de Segurança.**
 
-[![Status](https://img.shields.io/badge/status-em%20desenvolvimento-orange)]()
+[![Status](https://img.shields.io/badge/status-desenvolvimento%20ativo-orange)]()
 [![Go](https://img.shields.io/badge/core-Go-00ADD8?logo=go)]()
-[![Python](https://img.shields.io/badge/automação-Python-3776AB?logo=python)]()
-[![License: MIT](https://img.shields.io/badge/licença-MIT-blue.svg)](LICENSE)
+[![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL-336791?logo=postgresql)]()
+[![Python](https://img.shields.io/badge/automation-Python-3776AB?logo=python)]()
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Roadmap](https://img.shields.io/badge/roadmap-v2.0-blueviolet)]()
-
-🇧🇷 Português | [🇺🇸 English](README.md)
 
 </div>
 
 ---
 
-## ⚠️ Uso somente autorizado
+## ⚠️ Uso autorizado exclusivamente
 
-O Kestrel é construído para ser usado **exclusivamente** contra alvos que você possui ou para os quais tem **permissão explícita por escrito** para testar — labs, CTFs, programas de bug bounty ou sua própria infraestrutura. Validação de escopo, listas de permissão/bloqueio e proteção contra alvos fora do escopo são funcionalidades centrais da plataforma, não um adendo. Veja [`SECURITY.md`](SECURITY.md) para a política completa de escopo e o processo de divulgação responsável.
+O Kestrel foi desenvolvido para ser utilizado **exclusivamente** contra alvos que você possui ou para os quais tenha **permissão explícita por escrito** para realizar testes — incluindo laboratórios autorizados, ambientes CTF, programas de Bug Bounty e infraestrutura própria.
+
+Autorização e escopo são tratados como **controles de segurança fundamentais**, e não como configurações opcionais.
+
+O Kestrel foi projetado com:
+
+* Autorização explícita de alvos
+* Validação e aplicação de escopo
+* Regras de permissão e negação
+* Proteção contra operações fora de escopo
+* Controle de acesso baseado em funções
+* Rastreabilidade das atividades de avaliação
+
+Consulte [`SECURITY.md`](SECURITY.md) para conhecer a política de segurança completa e o processo de divulgação responsável.
 
 ---
 
-## 🎯 Por que o Kestrel
+## 🎯 Por que o Kestrel?
 
-A maioria dos projetos de pentest para portfólio é um único script que roda um scan e imprime resultados. O Kestrel é construído como uma plataforma de verdade:
+A maioria dos projetos de Pentest para portfólio consiste em um único script que executa uma varredura e imprime os resultados.
 
-- Gerencia **escopo** com limites de autorização aplicados
-- Separa achados **detectados** de achados **validados/confirmados**
-- Mantém uma **trilha de auditoria** de evidências (requisições, respostas, timestamps, notas do analista)
-- Produz um **relatório que um cliente de fato poderia receber** — não um dump de terminal
+O Kestrel está sendo desenvolvido como uma **plataforma real de avaliação de segurança**, com um ciclo estruturado desde a autorização até a geração do relatório.
 
-> "Técnica + Automação + Inteligência = Segurança Real"
+A plataforma é construída em torno de:
+
+* **Avaliação orientada por escopo**, com limites de autorização aplicados
+* **Detecção ≠ Validação ≠ Exploração**
+* Inventário persistente da **superfície de ataque**
+* Evidências associadas aos achados
+* Avaliações de segurança reproduzíveis
+* Rastreabilidade das atividades
+* Arquitetura modular de segurança
+* Geração automatizada de relatórios
+* Integração futura com DevSecOps e ambientes de nuvem
+
+O objetivo não é simplesmente encontrar algo suspeito.
+
+O objetivo é responder:
+
+> **O que foi observado, por que isso importa, pode ser validado, quais evidências sustentam o achado e como ele deve ser corrigido?**
+
+### Ciclo de avaliação
+
+```text
+Autorização
+      │
+      ▼
+Escopo & Alvo
+      │
+      ▼
+Descoberta
+      │
+      ▼
+Enumeração
+      │
+      ▼
+Detecção
+      │
+      ▼
+Possível Achado
+      │
+      ▼
+Validação de Segurança
+      │
+ ┌────┴────┐
+ ▼         ▼
+Rejeitado  Confirmado
+              │
+              ▼
+           Evidência
+              │
+              ▼
+            Impacto
+              │
+              ▼
+           Relatório
+              │
+              ▼
+         Remediação
+              │
+              ▼
+           Reteste
+```
+
+> **Detecção ≠ Validação ≠ Exploração**
+
+Uma detecção representa uma observação ou possível vulnerabilidade.
+
+A validação determina se essa observação é realmente reproduzível e relevante.
+
+A exploração, quando aplicável e explicitamente autorizada, constitui uma atividade de segurança separada.
+
+---
 
 ## 📌 Status
 
-🚧 **Em desenvolvimento inicial** — Fase 00 (Planejamento) concluída, Fase 01 (Fundação do Projeto) em andamento.
-Veja [`CHANGELOG.md`](CHANGELOG.md) para o progresso detalhado.
+🚧 **Desenvolvimento ativo**
+
+O Kestrel concluiu a base do projeto até a etapa atual de **Enumeração & Inventário da Superfície de Ataque**.
+
+### Progresso atual
+
+* ✅ Fase 00 — Planejamento
+* ✅ Fase 01 — Fundação do Projeto
+* ✅ Fase 02 — Arquitetura do Backend
+* ✅ Fase 03 — Banco de Dados & Migrations
+* ✅ Fase 04 — Autenticação & RBAC
+* ✅ Fase 05 — Gerenciamento de Alvos & Aplicação de Escopo
+* ✅ Fase 06 — Reconhecimento
+* ✅ Fase 07 — Enumeração & Inventário da Superfície de Ataque
+* 🚧 Fase 08 — Avaliação de Vulnerabilidades
+
+O backend atualmente possui uma API autenticada, persistência com PostgreSQL, gerenciamento de alvos com escopo, reconhecimento, enumeração e inventário da superfície de ataque.
+
+Consulte [`CHANGELOG.md`](CHANGELOG.md) para acompanhar o histórico detalhado do desenvolvimento.
 
 ---
 
-## ✨ Funcionalidades (planejadas)
+# ✨ Funcionalidades
 
-| Categoria | Capacidade |
-|---|---|
-| **Gestão de Alvos** | Domínios, IPs, URLs e ranges CIDR autorizados, com listas de permissão/bloqueio |
-| **Reconhecimento** | DNS, enumeração de subdomínios, descoberta de serviços HTTP e certificados |
-| **Enumeração** | Portas, serviços, versões, tecnologias → inventário completo da superfície de ataque |
-| **Avaliação de Vulnerabilidades** | Detecção alinhada a OWASP Top 10 / API Top 10 / WSTG, com pontuação CVSS |
-| **Fluxo de Validação** | `Achado Potencial → Validação → Confirmado / Falso Positivo`, com rastreio de confiança |
-| **Coleta de Evidências** | Captura de requisição/resposta, timestamps e notas do analista para cada achado confirmado |
-| **Relatórios** | Sumário executivo, metodologia, achados, evidências e recomendações automatizados — HTML / PDF / JSON |
-| **Controle de Acesso** | RBAC (admin, analista, visualizador), logs de auditoria, rate limiting |
-| **Dashboard** | Frontend web para projetos, alvos, scans, ativos, achados e relatórios |
+## Implementadas
 
----
+| Categoria                  | Funcionalidade                                 | Status |
+| -------------------------- | ---------------------------------------------- | :----: |
+| **Autenticação**           | Tokens JWT de acesso e renovação               |    ✅   |
+| **Autorização**            | RBAC com `admin` / `analyst` / `viewer`        |    ✅   |
+| **Gerenciamento de Alvos** | Ciclo de vida de alvos autorizados             |    ✅   |
+| **Aplicação de Escopo**    | Limites de avaliação baseados em autorização   |    ✅   |
+| **Reconhecimento**         | Resolução DNS                                  |    ✅   |
+| **Reconhecimento**         | Descoberta passiva de subdomínios via `crt.sh` |    ✅   |
+| **Reconhecimento**         | Detecção de serviços HTTP                      |    ✅   |
+| **Enumeração**             | Varredura concorrente de portas TCP            |    ✅   |
+| **Enumeração**             | Coleta passiva de banners                      |    ✅   |
+| **Superfície de Ataque**   | Agregação de ativos entre execuções            |    ✅   |
+| **Persistência**           | Dados de avaliação armazenados no PostgreSQL   |    ✅   |
 
-## 📚 Padrões e Referências
+## Em desenvolvimento
 
-A metodologia de avaliação do Kestrel é construída diretamente sobre padrões da indústria, não sobre heurísticas improvisadas:
+| Categoria                         | Funcionalidade                               | Status |
+| --------------------------------- | -------------------------------------------- | :----: |
+| **Avaliação de Vulnerabilidades** | Motor de detecção                            |   🚧   |
+| **Severidade**                    | Avaliação baseada em CVSS                    |   🚧   |
+| **Ciclo de Achados**              | Potencial → Validação → Confirmado/Rejeitado |   🚧   |
+| **Evidências**                    | Coleta e persistência de evidências          |    ⏳   |
+| **Relatórios**                    | Geração automatizada de relatórios           |    ⏳   |
 
-- **OWASP Top 10:2025** — Categorias de risco de aplicações web
-- **OWASP API Security Top 10** — Categorias de risco específicas de APIs
-- **OWASP WSTG** (Web Security Testing Guide) — Metodologia de testes
-- **CWE** (Common Weakness Enumeration) — Classificação de fraquezas
-- **CVSS** (Common Vulnerability Scoring System) — Pontuação de severidade
+## Planejadas
 
-<details>
-<summary><strong>Catálogo de vulnerabilidades (mapeamento OWASP Top 10:2025)</strong></summary>
-
-| ID | Categoria | Exemplos |
-|---|---|---|
-| A01 | Broken Access Control | IDOR, BOLA, BFLA |
-| A02 | Security Misconfiguration | Headers, CORS, exposição de `.git` |
-| A03 | Supply Chain Failures | Dependências, CI/CD |
-| A04 | Cryptographic Failures | TLS, hashing, secrets |
-| A05 | Injection | XSS, SQLi, SSRF, LFI |
-| A06 | Insecure Design | Lógica de negócio, condições de corrida |
-| A07 | Authentication Failures | Força bruta, gestão de sessão |
-| A08 | Data Integrity Failures | Deserialização, verificação de integridade |
-| A09 | Logging & Alerting Failures | Logs, monitoramento |
-| A10 | Exceptional Conditions | Tratamento de erros, DoS |
-
-</details>
+| Categoria           | Funcionalidade                           |
+| ------------------- | ---------------------------------------- |
+| **Relatórios**      | HTML / PDF / JSON                        |
+| **Dashboard**       | Interface web com React + Next.js        |
+| **Automação**       | Automação de segurança com Python        |
+| **DevSecOps**       | SAST / SCA / Secret Scanning / SBOM      |
+| **Infraestrutura**  | Docker / Kubernetes / Terraform          |
+| **Cloud**           | Implantação na AWS                       |
+| **Observabilidade** | Logs / métricas / traces                 |
+| **Testes**          | Regressão de segurança / Fuzzing / E2E   |
+| **Documentação**    | OpenAPI / ADRs / Runbooks / Threat Model |
 
 ---
 
-## 🏗️ Arquitetura
+# 📚 Padrões & Referências
 
-O Kestrel começa como um **monólito modular** — um único serviço Go implantável, com módulos internos claramente separados (Scanner Engine, Auth Service, Reports Service) — em vez de microsserviços desde o início. Racional completo e diagramas: [`ARCHITECTURE.md`](ARCHITECTURE.md).
+A metodologia de avaliação de segurança do Kestrel é construída sobre padrões e referências consolidados da indústria.
 
-A construção está organizada em cinco blocos:
+| Padrão                        | Finalidade                                       |
+| ----------------------------- | ------------------------------------------------ |
+| **OWASP Top 10**              | Principais riscos de segurança em aplicações web |
+| **OWASP API Security Top 10** | Riscos específicos de segurança em APIs          |
+| **OWASP WSTG**                | Metodologia para testes de segurança web         |
+| **CWE**                       | Classificação de fraquezas de software           |
+| **CVSS**                      | Avaliação da severidade de vulnerabilidades      |
+| **PTES**                      | Metodologia para testes de penetração            |
 
-| Bloco | Foco |
-|---|---|
-| **1 · Fundação** | Escopo do projeto, threat model, arquitetura, boilerplate do repositório |
-| **2 · Núcleo da Plataforma** | Arquitetura de backend, banco de dados, autenticação, gestão de alvos |
-| **3 · Motor de Segurança** | Reconhecimento → enumeração → avaliação de vulnerabilidades → validação → relatórios |
-| **4 · Interface e Automação** | Dashboard frontend, automação de segurança em Python |
-| **5 · Entrega / Escala** | Docker, DevSecOps, Kubernetes, AWS, Terraform, observabilidade, hardening, testes, documentação |
-
----
-
-## 🧰 Stack técnica
-
-| Camada | Escolha | Por quê |
-|---|---|---|
-| **API Principal** | Go (Chi/Gin) | Performance, tipagem forte, concorrência para orquestração de scans |
-| **Automação de segurança** | Python | Scripts de recon/parsing onde o ecossistema é imbatível — nunca duplica responsabilidades do Go |
-| **Banco de dados** | PostgreSQL | Integridade relacional para alvos, scans, achados, evidências |
-| **Cache/Fila** | Redis | Adicionado quando a orquestração de scans realmente precisar dele (não desde o dia um) |
-| **Frontend** | React + Next.js + TypeScript | Consome a API exclusivamente |
-| **Containers** | Docker / Docker Compose | Paridade entre local e CI |
-| **Orquestração** | Kubernetes | Introduzido quando houver motivo concreto para orquestrar em escala |
-| **IaC** | Terraform | Infra como código — VPC, EKS, IAM, RDS, S3, load balancer |
-| **Cloud** | AWS | VPC, EKS, RDS, ElastiCache, S3, IAM, CloudWatch |
-| **CI/CD** | GitHub Actions | Lint → testes → SAST → dependency scan → secret scan → build → deploy |
-
-Kubernetes, Terraform e AWS são introduzidos mais adiante no roadmap, quando houver motivo concreto para orquestrar e implantar nessa escala — veja [`ARCHITECTURE.md`](ARCHITECTURE.md).
+Esses padrões fornecem estrutura e terminologia para a plataforma, mas não substituem a análise profissional durante uma avaliação de segurança.
 
 ---
 
-## 🗺️ Roadmap (v2.0)
+## 🔎 Taxonomia de vulnerabilidades
+
+O motor de vulnerabilidades do Kestrel foi projetado para associar achados a classificações de segurança estabelecidas.
+
+Exemplos:
+
+| Categoria                              | Exemplos                                           |
+| -------------------------------------- | -------------------------------------------------- |
+| **Controle de Acesso Quebrado**        | IDOR, BOLA, BFLA                                   |
+| **Configuração Insegura**              | Headers, CORS, arquivos expostos                   |
+| **Segurança da Cadeia de Suprimentos** | Dependências vulneráveis, falhas em CI/CD          |
+| **Falhas Criptográficas**              | TLS fraco, hashing inseguro, secrets expostos      |
+| **Injeção**                            | XSS, SQL Injection, Command Injection, LFI         |
+| **Design Inseguro**                    | Falhas de lógica de negócio, condições de corrida  |
+| **Falhas de Autenticação**             | Gerenciamento de sessão, controles de autenticação |
+| **Falhas de Integridade**              | Desserialização insegura, validação de integridade |
+| **Logs & Monitoramento**               | Logging insuficiente, ausência de alertas          |
+| **Condições Excepcionais**             | Tratamento inadequado de erros e resiliência       |
+
+---
+
+# 🏗️ Arquitetura
+
+O Kestrel utiliza uma arquitetura de **monólito modular**.
+
+Em vez de introduzir microsserviços prematuramente, a plataforma utiliza um único serviço Go implantável, com domínios internos claramente separados.
+
+```text
+                         ┌──────────────────────┐
+                         │       Cliente        │
+                         │ CLI / Web / API      │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │       Handler        │
+                         │      HTTP / API      │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │       Service        │
+                         │    Regra de Negócio  │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │       Domain         │
+                         │  Conceitos de Segurança │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │     Repository       │
+                         │   Persistência       │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │      PostgreSQL      │
+                         └──────────────────────┘
+```
+
+### Domínios internos
+
+```text
+internal/
+├── auth/
+├── project/
+├── target/
+├── scan/
+├── asset/
+├── recon/
+├── enum/
+├── finding/
+├── evidence/
+└── report/
+```
+
+A arquitetura separa intencionalmente as responsabilidades de segurança para permitir que novos recursos sejam adicionados sem transformar o Kestrel em uma coleção de scripts de varredura fortemente acoplados.
+
+As decisões arquiteturais e os diagramas completos estão documentados em [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
+---
+
+# 🧩 Arquitetura de Segurança
+
+A autorização faz parte do próprio fluxo de avaliação.
+
+Um alvo não deve automaticamente se tornar elegível para testes apenas porque foi cadastrado no banco de dados.
+
+```text
+┌────────────────────┐
+│   Alvo Criado      │
+└─────────┬──────────┘
+          │
+          ▼
+┌────────────────────┐
+│   Não Autorizado   │
+└─────────┬──────────┘
+          │
+          │ Aprovação explícita
+          ▼
+┌────────────────────┐
+│     Autorizado     │
+└─────────┬──────────┘
+          │
+          ▼
+┌────────────────────┐
+│ Avaliação Permitida│
+└────────────────────┘
+```
+
+O modelo de segurança é estruturado em múltiplas camadas:
+
+```text
+Autenticação
+      │
+      ▼
+Autorização
+      │
+      ▼
+Escopo do Alvo
+      │
+      ▼
+Permissão de Avaliação
+      │
+      ▼
+Operação de Segurança
+      │
+      ▼
+Auditoria / Evidência
+```
+
+Esse modelo tem como objetivo reduzir atividades acidentais fora de escopo e fornecer rastreabilidade durante todo o ciclo de avaliação.
+
+---
+
+# 🗺️ Roadmap — v2.0
 
 <details open>
 <summary><strong>Bloco 1 · Fundação</strong></summary>
 
-| Fase | Foco | Status |
-|---|---|---|
-| 00 | Planejamento — objetivo, escopo, threat model, arquitetura | ✅ |
-| 01 | Fundação do projeto — estrutura do repo, boilerplate, endpoint `/health` | 🚧 |
+| Fase | Foco                                                        | Status |
+| ---- | ----------------------------------------------------------- | :----: |
+| 00   | Planejamento — objetivos, escopo, threat model, arquitetura |    ✅   |
+| 01   | Fundação do projeto — repositório, estrutura, `/health`     |    ✅   |
 
 </details>
 
-<details>
+<details open>
 <summary><strong>Bloco 2 · Núcleo da Plataforma</strong></summary>
 
-| Fase | Foco |
-|---|---|
-| 02 | Arquitetura de backend (handler → service → domain → repository, SOLID, DI) |
-| 03 | Banco de dados e migrações (PostgreSQL, entidades, relacionamentos, índices) |
-| 04 | Autenticação (JWT, refresh tokens, hashing de senha, RBAC, audit logs) |
-| 05 | Gestão de alvos (validação de escopo, allow/deny list, CIDR/domínio/IP/URL) |
+| Fase | Foco                                                                  | Status |
+| ---- | --------------------------------------------------------------------- | :----: |
+| 02   | Arquitetura do backend — handler → service → domain → repository      |    ✅   |
+| 03   | Banco de dados & migrations — PostgreSQL, entidades e relacionamentos |    ✅   |
+| 04   | Autenticação — JWT, refresh tokens, hashing, RBAC                     |    ✅   |
+| 05   | Gerenciamento de alvos — autorização e aplicação de escopo            |    ✅   |
 
 </details>
 
-<details>
+<details open>
 <summary><strong>Bloco 3 · Motor de Segurança</strong></summary>
 
-| Fase | Foco |
-|---|---|
-| 06 | Reconhecimento (DNS, subdomínios, HTTP, tech discovery, certificados) |
-| 07 | Enumeração (portas, serviços, versões, inventário de superfície de ataque) |
-| 08 | Avaliação de vulnerabilidades (OWASP Top 10:2025 / API Top 10 / WSTG, CWE, CVSS) |
-| 09 | Validação de segurança (achado potencial → validação → confirmado/rejeitado) |
-| 10 | Relatórios (sumário executivo, escopo, metodologia, achados, evidências) |
+| Fase | Foco                                                               | Status |
+| ---- | ------------------------------------------------------------------ | :----: |
+| 06   | Reconhecimento — DNS, subdomínios e descoberta HTTP                |    ✅   |
+| 07   | Enumeração — portas, serviços e inventário da superfície de ataque |    ✅   |
+| 08   | Avaliação de vulnerabilidades — OWASP, CWE, CVSS                   |   🚧   |
+| 09   | Validação de segurança — potencial → confirmado/rejeitado          |    ⏳   |
+| 10   | Relatórios — metodologia, achados, evidências e remediação         |    ⏳   |
 
 </details>
 
 <details>
-<summary><strong>Bloco 4 · Interface e Automação</strong></summary>
+<summary><strong>Bloco 4 · Interface & Automação</strong></summary>
 
-| Fase | Foco |
-|---|---|
-| 11 | Dashboard frontend (projetos, alvos, scans, ativos, achados, relatórios) |
-| 12 | Automação de segurança em Python (recon, parsers, HTTP, utils de relatório) |
+| Fase | Foco                              | Status |
+| ---- | --------------------------------- | :----: |
+| 11   | Dashboard web                     |    ⏳   |
+| 12   | Automação de segurança com Python |    ⏳   |
 
 </details>
 
 <details>
-<summary><strong>Bloco 5 · Entrega / Escala</strong></summary>
+<summary><strong>Bloco 5 · Entrega & Escala</strong></summary>
 
-| Fase | Foco |
-|---|---|
-| 13 | Docker (multi-stage, non-root, healthcheck, secrets) |
-| 14 | DevSecOps (SAST, SCA, secret scan, SBOM, provenance) |
-| 15 | Kubernetes (Deploy, Service, Ingress, ConfigMap/Secret, HPA, RBAC, network policy) |
-| 16 | AWS (VPC, EKS, RDS, ElastiCache, S3, IAM, CloudWatch, load balancer) |
-| 17 | Terraform (IaC, VPC, EKS, RDS, S3, load balancer) |
-| 18 | Observabilidade (logs, métricas, traces, Prometheus, Grafana, dashboards) |
-| 19 | Hardening de segurança (app/API/DB, Docker/K8s, threat modeling, TLS) |
-| 20 | Testes (unitários, integração, API, E2E, regressão de segurança, fuzzing) |
-| 21 | Documentação (arquitetura, API/OpenAPI, threat model, ADRs, runbooks) |
-| 22 | Deploy em ambiente de produção (CI/CD, monitoramento, rollback, health checks, auto-scaling) |
-| 23 | Portfólio (GitHub, demo, releases, screenshots, cases) |
+| Fase | Foco                                                           | Status |
+| ---- | -------------------------------------------------------------- | :----: |
+| 13   | Docker — imagens de produção, non-root e health checks         |    ⏳   |
+| 14   | DevSecOps — SAST, SCA, secrets, SBOM e provenance              |    ⏳   |
+| 15   | Kubernetes — deployment, networking, policies e scaling        |    ⏳   |
+| 16   | AWS — VPC, EKS, RDS, S3, IAM e CloudWatch                      |    ⏳   |
+| 17   | Terraform — infraestrutura como código                         |    ⏳   |
+| 18   | Observabilidade — logs, métricas e traces                      |    ⏳   |
+| 19   | Hardening — aplicação, API, banco e containers                 |    ⏳   |
+| 20   | Testes — unitários, integração, E2E, regressão e fuzzing       |    ⏳   |
+| 21   | Documentação — API, ADRs, threat model e runbooks              |    ⏳   |
+| 22   | Deploy semelhante a produção — CI/CD, monitoramento e rollback |    ⏳   |
+| 23   | Portfólio — releases, demo, screenshots e case studies         |    ⏳   |
 
 </details>
 
 ---
 
-## 🚀 Como começar
+# 🧰 Stack Tecnológica
 
-> Chegando na Fase 01 — a API ainda não existe.
+| Camada                     | Tecnologia                   | Finalidade                                                  |
+| -------------------------- | ---------------------------- | ----------------------------------------------------------- |
+| **Core API**               | Go                           | Plataforma principal, concorrência e workflows de segurança |
+| **HTTP Router**            | chi                          | Roteamento HTTP e middleware                                |
+| **Banco de Dados**         | PostgreSQL                   | Persistência dos dados da plataforma                        |
+| **Driver**                 | pgx                          | Acesso ao PostgreSQL em Go                                  |
+| **Autenticação**           | JWT                          | Autenticação por tokens de acesso e renovação               |
+| **Password Hashing**       | bcrypt                       | Proteção de credenciais                                     |
+| **Migrations**             | golang-migrate               | Versionamento do schema                                     |
+| **Automação de Segurança** | Python                       | Automação e ferramentas de segurança                        |
+| **Frontend**               | React + Next.js + TypeScript | Dashboard web planejado                                     |
+| **Containers**             | Docker / Docker Compose      | Ambientes reproduzíveis                                     |
+| **CI/CD**                  | GitHub Actions               | Pipeline de segurança e entrega                             |
+| **Cache / Queue**          | Redis                        | Planejado quando necessário para orquestração               |
+| **Orquestração**           | Kubernetes                   | Orquestração de containers                                  |
+| **Infraestrutura**         | Terraform                    | Infraestrutura como código                                  |
+| **Cloud**                  | AWS                          | Implantação em nuvem                                        |
+| **Observabilidade**        | Prometheus / Grafana         | Monitoramento planejado                                     |
+
+> O Kestrel evita introduzir complexidade de infraestrutura antes que ela seja realmente necessária. Redis, Kubernetes, AWS e Terraform entram posteriormente no roadmap conforme os requisitos da plataforma evoluem.
+
+---
+
+# 🔬 Inventário da Superfície de Ataque
+
+Um dos conceitos centrais do Kestrel é manter uma visão agregada dos ativos descobertos durante as avaliações de segurança.
+
+```text
+Alvo
+ │
+ ├── Domínios
+ │    ├── example.com
+ │    ├── api.example.com
+ │    └── dev.example.com
+ │
+ ├── Endereços IP
+ │
+ ├── Serviços
+ │    ├── HTTP
+ │    ├── HTTPS
+ │    └── SSH
+ │
+ ├── Portas
+ │    ├── 22
+ │    ├── 80
+ │    └── 443
+ │
+ └── Tecnologias
+      ├── Web Server
+      ├── Framework
+      └── Aplicação
+```
+
+Em vez de tratar cada scan como uma execução isolada, o Kestrel foi projetado para construir uma visão persistente da superfície de ataque observável do alvo ao longo do tempo.
+
+---
+
+# 🚀 Como começar
+
+## Requisitos
+
+* Go 1.21+
+* Docker
+* Docker Compose
+* PostgreSQL
+* [golang-migrate](https://github.com/golang-migrate/migrate)
+
+## Clonar o repositório
 
 ```bash
-# Placeholder — atualizado quando a Fase 01 for lançada
-git clone https://github.com/kestrel/kestrel.git
+git clone https://github.com/leomarqueseh/kestrel.git
 cd kestrel
-make setup
 ```
 
-## 📁 Estrutura do projeto
+## Configurar o ambiente
 
+```bash
+cp .env.example .env
 ```
+
+Configure as variáveis de ambiente necessárias de acordo com seu ambiente local.
+
+## Iniciar o PostgreSQL
+
+```bash
+docker compose up -d
+```
+
+## Configurar a conexão com o banco
+
+```bash
+export DATABASE_URL="postgres://kestrel:kestrel@localhost:5432/kestrel?sslmode=disable"
+```
+
+## Executar as migrations
+
+```bash
+migrate \
+  -database "$DATABASE_URL" \
+  -path migrations \
+  up
+```
+
+## Instalar dependências
+
+```bash
+go mod tidy
+```
+
+## Criar o administrador inicial
+
+```bash
+go run ./cmd/seed \
+  -email admin@kestrel.local \
+  -password "change-me"
+```
+
+> **Somente para desenvolvimento:** nunca utilize credenciais de exemplo em ambientes de produção.
+
+## Iniciar o Kestrel
+
+```bash
+make run
+```
+
+A API estará disponível em:
+
+```text
+http://localhost:8080
+```
+
+### Health check
+
+```bash
+curl http://localhost:8080/health
+```
+
+Resposta esperada:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+---
+
+# 📁 Estrutura do Projeto
+
+```text
 kestrel/
-├── cmd/                # Entrypoints
+├── api/                 # Definições e contratos da API
+├── cmd/                 # Entrypoints da aplicação
+├── configs/             # Configurações
+├── deployments/         # Manifestos de deploy
+├── docs/                # Documentação técnica
 ├── internal/
-│   ├── handler/        # Camada HTTP
-│   ├── service/         # Lógica de negócio
-│   ├── domain/          # Entidades centrais
-│   └── repository/      # Acesso a dados
-├── automation/          # Automação de segurança em Python
-├── web/                 # Frontend React + Next.js
-├── deployments/         # Docker, Kubernetes, Terraform
-└── docs/                 # Arquitetura, ADRs, runbooks
+│   ├── auth/            # Autenticação e autorização
+│   ├── project/         # Gerenciamento de projetos
+│   ├── target/          # Gerenciamento de alvos e escopo
+│   ├── scan/            # Orquestração de scans
+│   ├── asset/           # Ativos da superfície de ataque
+│   ├── recon/           # Reconhecimento
+│   └── enum/            # Enumeração
+├── migrations/          # Migrations do banco
+├── pkg/                 # Pacotes reutilizáveis
+├── scripts/             # Scripts auxiliares
+├── automation/          # Automação com Python
+├── tests/               # Suítes de testes
+├── Makefile
+├── ARCHITECTURE.md
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── LICENSE
+├── README.md
+└── SECURITY.md
 ```
 
-## 🤝 Contribuindo
+---
 
-Este projeto atualmente segue um roadmap de desenvolvimento solo (veja o [Roadmap](#️-roadmap-v20)). Issues e discussões são bem-vindas — veja [`CONTRIBUTING.md`](CONTRIBUTING.md) quando publicado.
+# 🔐 Filosofia de Testes de Segurança
 
-## 📄 Licença
+O Kestrel parte de um princípio simples:
 
-MIT — veja [`LICENSE`](LICENSE).
+> **Um achado é mais do que a saída de um scanner.**
 
-## 🔒 Segurança
+Uma avaliação madura deve estabelecer uma cadeia clara:
 
-Encontrou uma vulnerabilidade no próprio Kestrel, ou tem dúvidas sobre escopo autorizado? Veja [`SECURITY.md`](SECURITY.md) para o processo de divulgação responsável.
+```text
+Observação
+    ↓
+Contexto
+    ↓
+Validação
+    ↓
+Evidência
+    ↓
+Impacto
+    ↓
+Remediação
+    ↓
+Reteste
+```
+
+Essa abordagem busca reduzir falsos positivos, melhorar a qualidade dos relatórios e criar um registro de avaliação que possa ser compreendido tanto por profissionais de segurança quanto por stakeholders.
+
+---
+
+# 🤝 Contribuindo
+
+O Kestrel segue atualmente um roadmap estruturado de desenvolvimento.
+
+Contribuições, discussões técnicas, relatos de bugs e feedback arquitetural são bem-vindos.
+
+Antes de contribuir:
+
+1. Leia [`CONTRIBUTING.md`](CONTRIBUTING.md).
+2. Consulte o roadmap atual.
+3. Mantenha as alterações limitadas ao módulo relevante.
+4. Adicione ou atualize testes quando necessário.
+5. Documente comportamentos relacionados à segurança.
+6. Nunca introduza funcionalidades que ignorem controles de autorização ou escopo.
+
+---
+
+# 📄 Licença
+
+O Kestrel é distribuído sob a [Licença MIT](LICENSE).
+
+---
+
+# 🔒 Segurança
+
+Encontrou uma vulnerabilidade no próprio Kestrel?
+
+Consulte [`SECURITY.md`](SECURITY.md) para conhecer o processo de divulgação responsável.
+
+Evite divulgar publicamente detalhes sensíveis de uma vulnerabilidade antes que ela seja reportada e avaliada de maneira responsável.
 
 ---
 
 <div align="center">
-<sub>Kestrel — Construído para um futuro mais seguro.</sub>
+
+### 🦅 Kestrel
+
+**Observe. Analise. Valide.**
+
+*Construído para um futuro mais seguro.*
+
 </div>
