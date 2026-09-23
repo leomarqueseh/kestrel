@@ -14,6 +14,7 @@ import (
 	"github.com/leomarqueseh/kestrel/internal/asset"
 	"github.com/leomarqueseh/kestrel/internal/auth"
 	"github.com/leomarqueseh/kestrel/internal/config"
+	"github.com/leomarqueseh/kestrel/internal/finding"
 	"github.com/leomarqueseh/kestrel/internal/health"
 	"github.com/leomarqueseh/kestrel/internal/platform/postgres"
 	"github.com/leomarqueseh/kestrel/internal/project"
@@ -47,6 +48,8 @@ func main() {
 	assetRepo := asset.NewPostgresRepository(dbPool)
 	scanRepo := scan.NewPostgresRepository(dbPool)
 	scanHandler := scan.NewHandler(scan.NewService(scanRepo, assetRepo, targetRepo), assetRepo)
+
+	findingHandler := finding.NewHandler(finding.NewService(finding.NewPostgresRepository(dbPool), assetRepo))
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -93,6 +96,9 @@ func main() {
 					r.With(auth.RequireRole(auth.RoleAdmin, auth.RoleAnalyst)).Post("/enumeration", scanHandler.RunEnumeration)
 					r.Get("/", scanHandler.ListByTarget)
 				})
+
+				r.With(auth.RequireRole(auth.RoleAdmin, auth.RoleAnalyst)).Post("/assessment", findingHandler.Assess)
+				r.Get("/findings", findingHandler.ListByTarget)
 			})
 
 			r.Get("/scans/{scanID}/assets", scanHandler.ListAssets)
