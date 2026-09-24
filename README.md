@@ -200,22 +200,68 @@ These standards provide structure and vocabulary for the platform. They do not r
 
 ## 🔎 Vulnerability taxonomy
 
-Kestrel's vulnerability engine is designed to map findings to established security classifications.
+A `Finding` in Kestrel is never tied to a single classification scheme. OWASP is treated as one lens among several, not the source of truth:
 
-Examples include:
+```text
+Finding
+├── Vulnerability Type
+├── OWASP
+│   ├── Version
+│   └── Category
+├── CWE
+├── WSTG
+├── CVSS
+│   ├── Score
+│   └── Vector
+├── Severity
+├── Confidence
+└── Status
+```
 
-| Category                       | Examples                                       |
-| -------------------------------- | ----------------------------------------------- |
-| **Broken Access Control**        | IDOR, BOLA, BFLA                                 |
-| **Security Misconfiguration**    | Security headers, CORS, exposed files            |
-| **Supply Chain Security**        | Vulnerable dependencies, CI/CD weaknesses        |
-| **Cryptographic Failures**       | Weak TLS, insecure hashing, exposed secrets      |
-| **Injection**                    | XSS, SQL Injection, command injection, LFI       |
-| **Insecure Design**              | Business logic flaws, race conditions            |
-| **Authentication Failures**      | Session handling, authentication controls        |
-| **Integrity Failures**           | Unsafe deserialization, integrity validation     |
-| **Logging & Monitoring**         | Insufficient logging and alerting                |
-| **Exceptional Conditions**       | Improper error handling and resilience issues    |
+Example mapping:
+
+| Vulnerability | OWASP 2025 | CWE | WSTG |
+| --- | --- | --- | --- |
+| IDOR / BOLA | A01 — Broken Access Control | CWE-639 | WSTG-ATHZ-04 |
+| XSS | A03 — Injection | CWE-79 | WSTG-INPV-01 |
+| SQL Injection | A03 — Injection | CWE-89 | WSTG-INPV-05 |
+| Open Redirect | A01 — Broken Access Control | CWE-601 | — |
+| SSRF | contextual | CWE-918 | — |
+| CORS Misconfiguration | A05 — Security Misconfiguration | CWE-942 | — |
+
+### Detector catalog, by real detection feasibility
+
+Kestrel doesn't claim uniform, high-confidence automated detection for every entry in the OWASP universe — each class of vulnerability requires a genuinely different testing technique, and several are not reliably automatable as black-box HTTP testing. The catalog below is split honestly by what that implies:
+
+<details open>
+<summary><strong>Tier 1 — parameter fuzzing, path scanning, header inspection (buildable on the current architecture)</strong></summary>
+
+Open Redirect · XSS Reflected · SQL Injection (error-based) · NoSQL Injection · LDAP Injection · XPath Injection · LFI / Path Traversal · Host Header Injection · HTTP Parameter Pollution · CRLF Injection · SSTI · CORS Misconfiguration · Security Headers Misconfiguration · Exposed `.git` · Exposed `.env` / sensitive files · Directory Listing · Debug Mode / Verbose Errors · Forced Browsing · CSRF (missing protection)
+
+</details>
+
+<details>
+<summary><strong>Tier 2 — requires new infrastructure (out-of-band listener, TLS inspection)</strong></summary>
+
+SSRF · XXE · XML Injection · Command Injection (time-based) · Weak TLS Configuration
+
+</details>
+
+<details>
+<summary><strong>Tier 3 — requires comparing two authenticated sessions (Access Control Engine)</strong></summary>
+
+IDOR · BOLA · BFLA · Missing Authorization · Privilege Escalation · Session Fixation · Authentication Bypass/Weaknesses
+
+</details>
+
+<details>
+<summary><strong>Tier 4 — not reliably automatable as black-box; surfaced as a manual review checklist in the report instead</strong></summary>
+
+XSS Stored · XSS DOM-based · Insecure File Upload · Insecure Deserialization · HTTP Request Smuggling · Prototype Pollution · Weak Cryptography/Hashing/Password Storage · Dependency & Supply Chain Vulnerabilities (covered by Phase 14's SAST/SCA tooling instead) · Business Logic Flaws · Race Conditions · Workflow Abuse · CSV Injection
+
+</details>
+
+Detector implementation follows the roadmap below (Phase 08b onward) — see [`CHANGELOG.md`](CHANGELOG.md) for what's actually built versus planned at any point in time.
 
 ---
 
