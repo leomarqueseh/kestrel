@@ -12,3 +12,8 @@ vendor/
 *.swp
 .DS_Store
 *.log
+
+# Frontend (Next.js)
+web/node_modules/
+web/.next/
+web/.env*.local

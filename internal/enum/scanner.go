@@ -2,8 +2,18 @@
 // a concurrent connect scan over a curated list of common ports, with a
 // passive banner read on each open port.
 //
-// Wiring nmap via os/exec is a valid future upgrade for full-range or
-// UDP scanning — not required for this module to already be useful.
+// The port list is grouped below by category for readability. Richer
+// per-port metadata (recommended enumeration technique, associated risk)
+// is documented in docs/ports.md rather than encoded here — adding it to
+// the runtime map would require a schema change (assets.category) that
+// isn't justified until a concrete feature consumes it.
+//
+// UDP services (DNS, SNMP, VPN, VoIP) are intentionally out of scope: this
+// scanner is TCP-connect only. UDP scanning needs a different technique
+// (no handshake to confirm state) and is tracked as future work.
+//
+// Wiring nmap via os/exec remains a valid future upgrade for full-range
+// scanning — not required for this module to already be useful.
 package enum
 
 import (
@@ -18,14 +28,40 @@ import (
 	"github.com/leomarqueseh/kestrel/internal/asset"
 )
 
-// commonPorts maps port number to the service conventionally running there.
+// commonPorts maps port number to the service conventionally running
+// there. Port number alone never confirms the service — banner grabbing
+// below provides the closest thing to confirmation this module offers;
+// true fingerprinting is a future enhancement.
 var commonPorts = map[int]string{
-	21: "ftp", 22: "ssh", 23: "telnet", 25: "smtp", 53: "dns",
-	80: "http", 110: "pop3", 111: "rpcbind", 135: "msrpc", 139: "netbios-ssn",
-	143: "imap", 443: "https", 445: "microsoft-ds", 465: "smtps", 587: "submission",
-	993: "imaps", 995: "pop3s", 1433: "mssql", 1723: "pptp", 3306: "mysql",
-	3389: "rdp", 5432: "postgresql", 5900: "vnc", 6379: "redis",
-	8080: "http-alt", 8443: "https-alt", 9200: "elasticsearch",
+	// Web
+	80: "http", 443: "https", 3000: "http-dev", 5000: "http-dev",
+	8000: "http", 8080: "http-proxy", 8443: "https-alt", 8888: "http-jupyter",
+
+	// Remote access
+	22: "ssh", 23: "telnet", 3389: "rdp", 5900: "vnc",
+	5985: "winrm", 5986: "winrm-tls",
+
+	// File sharing
+	20: "ftp-data", 21: "ftp", 139: "netbios-ssn", 445: "smb", 873: "rsync", 2049: "nfs",
+
+	// Directory / authentication
+	88: "kerberos", 135: "msrpc", 137: "netbios-ns", 138: "netbios-dgm",
+	389: "ldap", 636: "ldaps",
+
+	// Databases
+	1433: "mssql", 1521: "oracle", 3306: "mysql", 5432: "postgresql",
+	6379: "redis", 9200: "elasticsearch", 9300: "elasticsearch-cluster",
+	27017: "mongodb",
+
+	// Infrastructure & platform services
+	53: "dns", 111: "rpcbind", 161: "snmp", 162: "snmptrap", 514: "syslog",
+	902: "vmware", 1080: "socks-proxy", 2181: "zookeeper", 2375: "docker-api",
+	2376: "docker-api-tls", 5601: "kibana", 6443: "kubernetes-api",
+	11211: "memcached", 50000: "sap", 5060: "sip", 5061: "sip-tls",
+
+	// Mail
+	25: "smtp", 110: "pop3", 143: "imap", 465: "smtps",
+	587: "smtp-submission", 993: "imaps", 995: "pop3s",
 }
 
 const (
