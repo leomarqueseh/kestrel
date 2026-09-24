@@ -11,6 +11,7 @@
 [![Status](https://img.shields.io/badge/status-active%20development-orange)]()
 [![Go](https://img.shields.io/badge/core-Go-00ADD8?logo=go)]()
 [![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL-336791?logo=postgresql)]()
+[![Next.js](https://img.shields.io/badge/frontend-Next.js-black?logo=next.js)]()
 [![Python](https://img.shields.io/badge/automation-Python-3776AB?logo=python)]()
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Roadmap](https://img.shields.io/badge/roadmap-v2.0-blueviolet)]()
@@ -42,7 +43,7 @@ See [`SECURITY.md`](SECURITY.md) for the full security policy and responsible di
 
 Most portfolio pentest projects are a single script that runs a scan and prints results.
 
-Kestrel is being built as a **real security assessment platform** with a structured lifecycle from authorization to reporting.
+Kestrel is a **real security assessment platform** with a working, end-to-end lifecycle: authorization → discovery → detection → validated evidence → reporting.
 
 The platform focuses on:
 
@@ -54,6 +55,7 @@ The platform focuses on:
 * Auditable assessment activity
 * Modular security architecture
 * Automated reporting
+* A working web dashboard
 * Future DevSecOps and cloud integration
 
 The goal is not simply to find something suspicious.
@@ -111,13 +113,15 @@ A detection represents an observation or potential issue.
 Validation determines whether the observation is actually reproducible and relevant.
 Exploitation, where applicable and explicitly authorized, is a separate security activity.
 
+**This full lifecycle is implemented and working today** — from an authenticated target being scanned, through NVD-correlated detection, manual validation with evidence, to a generated report.
+
 ---
 
 ## 📌 Status
 
 🚧 **Active development**
 
-Kestrel has completed the foundation through the current **Enumeration & Attack Surface Inventory** stage.
+Kestrel has a working backend covering the entire assessment lifecycle, plus a web dashboard currently being finished.
 
 ### Current progress
 
@@ -129,9 +133,10 @@ Kestrel has completed the foundation through the current **Enumeration & Attack 
 * ✅ Phase 05 — Target Management & Scope Enforcement
 * ✅ Phase 06 — Reconnaissance
 * ✅ Phase 07 — Enumeration & Attack Surface Inventory
-* 🚧 Phase 08 — Vulnerability Assessment
-
-The backend currently includes an authenticated API, PostgreSQL persistence, scoped target management, reconnaissance, enumeration, and attack-surface inventory.
+* ✅ Phase 08 — Vulnerability Assessment (NVD-correlated)
+* ✅ Phase 09 — Security Validation (evidence-backed confirmation)
+* ✅ Phase 10 — Reporting (HTML / JSON; PDF intentionally deferred)
+* 🚧 Phase 11 — Frontend Dashboard (in progress)
 
 See [`CHANGELOG.md`](CHANGELOG.md) for detailed development history.
 
@@ -141,43 +146,38 @@ See [`CHANGELOG.md`](CHANGELOG.md) for detailed development history.
 
 ## Implemented
 
-| Category              | Capability                                | Status |
-| --------------------- | ----------------------------------------- | :----: |
-| **Authentication**    | JWT access & refresh tokens               |    ✅   |
-| **Authorization**     | `admin` / `analyst` / `viewer` RBAC       |    ✅   |
-| **Target Management** | Authorized target lifecycle               |    ✅   |
-| **Scope Enforcement** | Authorization-aware assessment boundaries |    ✅   |
-| **Reconnaissance**    | DNS resolution                            |    ✅   |
-| **Reconnaissance**    | Passive subdomain discovery via `crt.sh`  |    ✅   |
-| **Reconnaissance**    | HTTP service detection                    |    ✅   |
-| **Enumeration**       | Concurrent TCP port scanning              |    ✅   |
-| **Enumeration**       | Passive banner grabbing                   |    ✅   |
-| **Attack Surface**    | Asset aggregation across scan runs        |    ✅   |
-| **Persistence**       | PostgreSQL-backed assessment data         |    ✅   |
+| Category                     | Capability                                       | Status |
+| ----------------------------- | ------------------------------------------------ | :----: |
+| **Authentication**            | JWT access & refresh tokens                      |    ✅   |
+| **Authorization**             | `admin` / `analyst` / `viewer` RBAC               |    ✅   |
+| **Target Management**         | Authorized target lifecycle                       |    ✅   |
+| **Scope Enforcement**         | Authorization-aware assessment boundaries         |    ✅   |
+| **Reconnaissance**            | DNS resolution                                    |    ✅   |
+| **Reconnaissance**            | Passive subdomain discovery via `crt.sh`          |    ✅   |
+| **Reconnaissance**            | HTTP service detection                            |    ✅   |
+| **Enumeration**               | Concurrent TCP port scanning                       |    ✅   |
+| **Enumeration**               | Passive banner grabbing                            |    ✅   |
+| **Attack Surface**            | Asset aggregation across scan runs                 |    ✅   |
+| **Vulnerability Assessment**  | NVD-correlated CVE detection with real CVSS scores |    ✅   |
+| **Finding Lifecycle**         | `detected → needs_validation → confirmed/rejected` enforced in code and DB |    ✅   |
+| **Evidence**                  | Request/response/notes attached to confirmed findings |    ✅   |
+| **Reporting**                 | HTML report (styled, printable) and JSON export    |    ✅   |
+| **Dashboard API**              | Aggregate counts by severity and status            |    ✅   |
+| **Web Dashboard**              | Login, projects, targets, scans, findings UI       |   🚧   |
+| **Persistence**               | PostgreSQL-backed assessment data                  |    ✅   |
 
-## In development
+## In development / planned
 
-| Category                     | Capability                                  | Status |
-| ---------------------------- | ------------------------------------------- | :----: |
-| **Vulnerability Assessment** | Detection engine                            |   🚧   |
-| **Severity**                 | CVSS-based assessment                       |   🚧   |
-| **Finding Lifecycle**        | Potential → Validation → Confirmed/Rejected |   🚧   |
-| **Evidence**                 | Evidence collection and persistence         |    ⏳   |
-| **Reporting**                | Automated security reports                  |    ⏳   |
-
-## Planned
-
-| Category           | Capability                               |
-| ------------------ | ---------------------------------------- |
-| **Reporting**      | HTML / PDF / JSON reports                |
-| **Dashboard**      | React + Next.js web interface            |
-| **Automation**     | Python security automation               |
-| **DevSecOps**      | SAST / SCA / secret scanning / SBOM      |
-| **Infrastructure** | Docker / Kubernetes / Terraform          |
-| **Cloud**          | AWS deployment                           |
-| **Observability**  | Logs / metrics / traces                  |
-| **Testing**        | Security regression / fuzzing / E2E      |
-| **Documentation**  | OpenAPI / ADRs / runbooks / threat model |
+| Category           | Capability                               | Status |
+| ------------------- | ----------------------------------------- | :----: |
+| **Reporting**        | PDF export                                |    ⏳   |
+| **Automation**       | Python security automation                |    ⏳   |
+| **DevSecOps**        | SAST / SCA / secret scanning / SBOM       |    ⏳   |
+| **Infrastructure**   | Docker / Kubernetes / Terraform            |    ⏳   |
+| **Cloud**            | AWS deployment                             |    ⏳   |
+| **Observability**    | Logs / metrics / traces                    |    ⏳   |
+| **Testing**          | Security regression / fuzzing / E2E        |    ⏳   |
+| **Documentation**    | OpenAPI / ADRs / runbooks / threat model   |    ⏳   |
 
 ---
 
@@ -186,13 +186,13 @@ See [`CHANGELOG.md`](CHANGELOG.md) for detailed development history.
 Kestrel's security assessment methodology is designed around established industry standards and security frameworks.
 
 | Standard                      | Purpose                           |
-| ----------------------------- | --------------------------------- |
-| **OWASP Top 10**              | Web application security risks    |
-| **OWASP API Security Top 10** | API-specific security risks       |
-| **OWASP WSTG**                | Web security testing methodology  |
-| **CWE**                       | Weakness classification           |
-| **CVSS**                      | Vulnerability severity assessment |
-| **PTES**                      | Penetration testing methodology   |
+| ------------------------------ | ---------------------------------- |
+| **OWASP Top 10**               | Web application security risks     |
+| **OWASP API Security Top 10**  | API-specific security risks        |
+| **OWASP WSTG**                 | Web security testing methodology   |
+| **CWE**                        | Weakness classification            |
+| **CVSS**                       | Vulnerability severity assessment (sourced live from the NVD) |
+| **PTES**                       | Penetration testing methodology    |
 
 These standards provide structure and vocabulary for the platform. They do not replace professional security analysis or assessment judgment.
 
@@ -200,22 +200,68 @@ These standards provide structure and vocabulary for the platform. They do not r
 
 ## 🔎 Vulnerability taxonomy
 
-Kestrel's vulnerability engine is designed to map findings to established security classifications.
+A `Finding` in Kestrel is never tied to a single classification scheme. OWASP is treated as one lens among several, not the source of truth:
 
-Examples include:
+```text
+Finding
+├── Vulnerability Type
+├── OWASP
+│   ├── Version
+│   └── Category
+├── CWE
+├── WSTG
+├── CVSS
+│   ├── Score
+│   └── Vector
+├── Severity
+├── Confidence
+└── Status
+```
 
-| Category                      | Examples                                      |
-| ----------------------------- | --------------------------------------------- |
-| **Broken Access Control**     | IDOR, BOLA, BFLA                              |
-| **Security Misconfiguration** | Security headers, CORS, exposed files         |
-| **Supply Chain Security**     | Vulnerable dependencies, CI/CD weaknesses     |
-| **Cryptographic Failures**    | Weak TLS, insecure hashing, exposed secrets   |
-| **Injection**                 | XSS, SQL Injection, command injection, LFI    |
-| **Insecure Design**           | Business logic flaws, race conditions         |
-| **Authentication Failures**   | Session handling, authentication controls     |
-| **Integrity Failures**        | Unsafe deserialization, integrity validation  |
-| **Logging & Monitoring**      | Insufficient logging and alerting             |
-| **Exceptional Conditions**    | Improper error handling and resilience issues |
+Example mapping:
+
+| Vulnerability | OWASP 2025 | CWE | WSTG |
+| --- | --- | --- | --- |
+| IDOR / BOLA | A01 — Broken Access Control | CWE-639 | WSTG-ATHZ-04 |
+| XSS | A03 — Injection | CWE-79 | WSTG-INPV-01 |
+| SQL Injection | A03 — Injection | CWE-89 | WSTG-INPV-05 |
+| Open Redirect | A01 — Broken Access Control | CWE-601 | — |
+| SSRF | contextual | CWE-918 | — |
+| CORS Misconfiguration | A05 — Security Misconfiguration | CWE-942 | — |
+
+### Detector catalog, by real detection feasibility
+
+Kestrel doesn't claim uniform, high-confidence automated detection for every entry in the OWASP universe — each class of vulnerability requires a genuinely different testing technique, and several are not reliably automatable as black-box HTTP testing. The catalog below is split honestly by what that implies:
+
+<details open>
+<summary><strong>Tier 1 — parameter fuzzing, path scanning, header inspection (buildable on the current architecture)</strong></summary>
+
+Open Redirect · XSS Reflected · SQL Injection (error-based) · NoSQL Injection · LDAP Injection · XPath Injection · LFI / Path Traversal · Host Header Injection · HTTP Parameter Pollution · CRLF Injection · SSTI · CORS Misconfiguration · Security Headers Misconfiguration · Exposed `.git` · Exposed `.env` / sensitive files · Directory Listing · Debug Mode / Verbose Errors · Forced Browsing · CSRF (missing protection)
+
+</details>
+
+<details>
+<summary><strong>Tier 2 — requires new infrastructure (out-of-band listener, TLS inspection)</strong></summary>
+
+SSRF · XXE · XML Injection · Command Injection (time-based) · Weak TLS Configuration
+
+</details>
+
+<details>
+<summary><strong>Tier 3 — requires comparing two authenticated sessions (Access Control Engine)</strong></summary>
+
+IDOR · BOLA · BFLA · Missing Authorization · Privilege Escalation · Session Fixation · Authentication Bypass/Weaknesses
+
+</details>
+
+<details>
+<summary><strong>Tier 4 — not reliably automatable as black-box; surfaced as a manual review checklist in the report instead</strong></summary>
+
+XSS Stored · XSS DOM-based · Insecure File Upload · Insecure Deserialization · HTTP Request Smuggling · Prototype Pollution · Weak Cryptography/Hashing/Password Storage · Dependency & Supply Chain Vulnerabilities (covered by Phase 14's SAST/SCA tooling instead) · Business Logic Flaws · Race Conditions · Workflow Abuse · CSV Injection
+
+</details>
+
+Detector implementation follows the roadmap below (Phase 08b onward) — see [`CHANGELOG.md`](CHANGELOG.md) for what's actually built versus planned at any point in time.
 
 ---
 
@@ -223,12 +269,12 @@ Examples include:
 
 Kestrel follows a **modular monolith** architecture.
 
-Instead of introducing microservices prematurely, the platform uses a single deployable Go service with clearly separated internal domains.
+Instead of introducing microservices prematurely, the platform uses a single deployable Go service with clearly separated internal domains, plus an independent Next.js frontend that consumes the API exclusively.
 
 ```text
                          ┌──────────────────────┐
                          │       Client         │
-                         │ CLI / Web / API      │
+                         │ Web (Next.js) / API  │
                          └──────────┬───────────┘
                                     │
                                     ▼
@@ -265,16 +311,20 @@ Instead of introducing microservices prematurely, the platform uses a single dep
 
 ```text
 internal/
-├── auth/
-├── project/
-├── target/
-├── scan/
-├── asset/
-├── recon/
-├── enum/
-├── finding/
-├── evidence/
-└── report/
+├── auth/        # authentication, RBAC middleware
+├── project/     # assessment projects
+├── target/      # scope and target authorization
+├── scan/        # scan orchestration (recon, enumeration)
+├── asset/       # attack surface inventory
+├── recon/       # DNS, subdomain discovery, HTTP probing
+├── enum/        # concurrent TCP port enumeration
+├── nvd/         # NVD CVE correlation client
+├── finding/     # vulnerability findings + validation workflow
+├── evidence/    # proof attached to confirmed findings
+├── report/      # HTML/JSON report generation
+└── dashboard/   # aggregate security posture summary
+
+web/             # Next.js frontend, consumes the API exclusively
 ```
 
 The architecture intentionally separates security concerns so that new capabilities can be added without turning Kestrel into a collection of tightly coupled scanning scripts.
@@ -299,7 +349,7 @@ A target should not automatically become eligible for testing simply because it 
 │  Unauthorized   │
 └────────┬────────┘
          │
-         │ Explicit approval
+         │ Explicit approval (admin only)
          ▼
 ┌─────────────────┐
 │   Authorized    │
@@ -312,28 +362,26 @@ A target should not automatically become eligible for testing simply because it 
 └─────────────────┘
 ```
 
-The security model is designed around multiple boundaries:
+The security model is enforced across multiple boundaries — every layer below is implemented and active, not aspirational:
 
 ```text
-Authentication
+Authentication      → JWT, verified on every protected route
        │
        ▼
-Authorization
+Authorization       → RBAC (admin/analyst/viewer)
        │
        ▼
-Target Scope
+Target Scope        → unauthorized targets never reach the network
        │
        ▼
-Assessment Permission
+Assessment Permission → only admin can approve a target for testing
        │
        ▼
-Security Operation
+Security Operation  → recon, enumeration, and assessment modules
        │
        ▼
-Audit / Evidence
+Audit / Evidence    → confirmed findings require attached evidence
 ```
-
-This model is intended to reduce accidental out-of-scope activity and provide traceability throughout the assessment lifecycle.
 
 ---
 
@@ -343,7 +391,7 @@ This model is intended to reduce accidental out-of-scope activity and provide tr
 <summary><strong>Block 1 · Foundation</strong></summary>
 
 | Phase | Focus                                                    | Status |
-| ----- | -------------------------------------------------------- | :----: |
+| ----- | ---------------------------------------------------------| :----: |
 | 00    | Planning — objectives, scope, threat model, architecture |    ✅   |
 | 01    | Project foundation — repository, boilerplate, `/health`  |    ✅   |
 
@@ -352,54 +400,54 @@ This model is intended to reduce accidental out-of-scope activity and provide tr
 <details open>
 <summary><strong>Block 2 · Platform Core</strong></summary>
 
-| Phase | Focus                                                          | Status |
-| ----- | -------------------------------------------------------------- | :----: |
-| 02    | Backend architecture — handler → service → domain → repository |    ✅   |
-| 03    | Database & migrations — PostgreSQL, entities, relationships    |    ✅   |
-| 04    | Authentication — JWT, refresh tokens, password hashing, RBAC   |    ✅   |
-| 05    | Target management — authorization and scope enforcement        |    ✅   |
+| Phase | Focus                                                            | Status |
+| ----- | ----------------------------------------------------------------- | :----: |
+| 02    | Backend architecture — handler → service → domain → repository    |    ✅   |
+| 03    | Database & migrations — PostgreSQL, entities, relationships       |    ✅   |
+| 04    | Authentication — JWT, refresh tokens, password hashing, RBAC      |    ✅   |
+| 05    | Target management — authorization and scope enforcement           |    ✅   |
 
 </details>
 
 <details open>
 <summary><strong>Block 3 · Security Engine</strong></summary>
 
-| Phase | Focus                                                        | Status |
-| ----- | ------------------------------------------------------------ | :----: |
-| 06    | Reconnaissance — DNS, subdomains, HTTP discovery             |    ✅   |
-| 07    | Enumeration — ports, services, attack surface inventory      |    ✅   |
-| 08    | Vulnerability assessment — OWASP, CWE, CVSS                  |   🚧   |
-| 09    | Security validation — potential finding → confirmed/rejected |    ⏳   |
-| 10    | Reporting — methodology, findings, evidence, remediation     |    ⏳   |
+| Phase | Focus                                                          | Status |
+| ----- | ----------------------------------------------------------------| :----: |
+| 06    | Reconnaissance — DNS, subdomains, HTTP discovery                |    ✅   |
+| 07    | Enumeration — ports, services, attack surface inventory          |    ✅   |
+| 08    | Vulnerability assessment — NVD correlation, real CVSS scoring    |    ✅   |
+| 09    | Security validation — potential finding → confirmed/rejected     |    ✅   |
+| 10    | Reporting — methodology, findings, evidence, remediation (HTML/JSON) |    ✅   |
 
 </details>
 
-<details>
+<details open>
 <summary><strong>Block 4 · Interface & Automation</strong></summary>
 
 | Phase | Focus                      | Status |
-| ----- | -------------------------- | :----: |
-| 11    | Frontend dashboard         |    ⏳   |
-| 12    | Python security automation |    ⏳   |
+| ----- | --------------------------- | :----: |
+| 11    | Frontend dashboard          |   🚧   |
+| 12    | Python security automation  |    ⏳   |
 
 </details>
 
 <details>
 <summary><strong>Block 5 · Delivery & Scale</strong></summary>
 
-| Phase | Focus                                                          | Status |
-| ----- | -------------------------------------------------------------- | :----: |
-| 13    | Docker — production images, non-root, health checks            |    ⏳   |
-| 14    | DevSecOps — SAST, SCA, secrets, SBOM, provenance               |    ⏳   |
-| 15    | Kubernetes — deployment, networking, policies, scaling         |    ⏳   |
-| 16    | AWS — VPC, EKS, RDS, S3, IAM, CloudWatch                       |    ⏳   |
-| 17    | Terraform — infrastructure as code                             |    ⏳   |
-| 18    | Observability — logs, metrics, traces                          |    ⏳   |
-| 19    | Security hardening — application, API, DB, containers          |    ⏳   |
-| 20    | Testing — unit, integration, E2E, security regression, fuzzing |    ⏳   |
-| 21    | Documentation — API, ADRs, threat model, runbooks              |    ⏳   |
-| 22    | Production-like deployment — CI/CD, monitoring, rollback       |    ⏳   |
-| 23    | Portfolio — releases, demo, screenshots, case studies          |    ⏳   |
+| Phase | Focus                                                            | Status |
+| ----- | ------------------------------------------------------------------| :----: |
+| 13    | Docker — production images, non-root, health checks               |    ⏳   |
+| 14    | DevSecOps — SAST, SCA, secrets, SBOM, provenance                  |    ⏳   |
+| 15    | Kubernetes — deployment, networking, policies, scaling            |    ⏳   |
+| 16    | AWS — VPC, EKS, RDS, S3, IAM, CloudWatch                          |    ⏳   |
+| 17    | Terraform — infrastructure as code                                |    ⏳   |
+| 18    | Observability — logs, metrics, traces                             |    ⏳   |
+| 19    | Security hardening — application, API, DB, containers             |    ⏳   |
+| 20    | Testing — unit, integration, E2E, security regression, fuzzing    |    ⏳   |
+| 21    | Documentation — API, ADRs, threat model, runbooks                 |    ⏳   |
+| 22    | Production-like deployment — CI/CD, monitoring, rollback          |    ⏳   |
+| 23    | Portfolio — releases, demo, screenshots, case studies             |    ⏳   |
 
 </details>
 
@@ -408,31 +456,33 @@ This model is intended to reduce accidental out-of-scope activity and provide tr
 # 🧰 Tech Stack
 
 | Layer                   | Technology                   | Purpose                                           |
-| ----------------------- | ---------------------------- | ------------------------------------------------- |
-| **Core API**            | Go                           | Core platform, concurrency and security workflows |
-| **HTTP Router**         | chi                          | Lightweight HTTP routing and middleware           |
-| **Database**            | PostgreSQL                   | Persistent relational data                        |
-| **Database Driver**     | pgx                          | PostgreSQL access from Go                         |
-| **Authentication**      | JWT                          | Access and refresh token authentication           |
-| **Password Hashing**    | bcrypt                       | Password protection                               |
-| **Migrations**          | golang-migrate               | Version-controlled schema migrations              |
-| **Security Automation** | Python                       | Planned automation and security tooling           |
-| **Frontend**            | React + Next.js + TypeScript | Planned web dashboard                             |
-| **Containers**          | Docker / Docker Compose      | Reproducible environments                         |
-| **CI/CD**               | GitHub Actions               | Planned security and delivery pipeline            |
-| **Cache / Queue**       | Redis                        | Planned when orchestration requires it            |
-| **Orchestration**       | Kubernetes                   | Planned container orchestration                   |
-| **Infrastructure**      | Terraform                    | Planned infrastructure as code                    |
-| **Cloud**               | AWS                          | Planned cloud deployment                          |
-| **Observability**       | Prometheus / Grafana         | Planned monitoring stack                          |
+| ------------------------ | ----------------------------- | --------------------------------------------------|
+| **Core API**              | Go                             | Core platform, concurrency and security workflows |
+| **HTTP Router**           | chi                            | Lightweight HTTP routing and middleware            |
+| **Database**              | PostgreSQL                     | Persistent relational data                          |
+| **Database Driver**       | pgx                             | PostgreSQL access from Go                            |
+| **Authentication**        | JWT                             | Access and refresh token authentication              |
+| **Password Hashing**      | bcrypt                          | Password protection                                  |
+| **Migrations**            | golang-migrate                  | Version-controlled schema migrations                 |
+| **Vulnerability Data**    | NVD API                         | Live CVE correlation with CVSS scoring               |
+| **Report Rendering**      | Go `html/template`              | XSS-safe HTML report generation                       |
+| **Frontend**              | React + Next.js + TypeScript + Tailwind | Web dashboard, consumes the API exclusively |
+| **Security Automation**   | Python (planned)                | Future automation and specialized security tooling    |
+| **Containers**            | Docker / Docker Compose         | Local PostgreSQL today; full app containerization planned |
+| **CI/CD**                 | GitHub Actions (planned)        | Future security and delivery pipeline                 |
+| **Cache / Queue**         | Redis (planned)                 | Introduced when orchestration requires it              |
+| **Orchestration**         | Kubernetes (planned)            | Future container orchestration                         |
+| **Infrastructure**        | Terraform (planned)             | Future infrastructure as code                           |
+| **Cloud**                 | AWS (planned)                   | Future cloud deployment                                 |
+| **Observability**         | Prometheus / Grafana (planned)  | Future monitoring stack                                 |
 
-> Kestrel intentionally avoids introducing infrastructure complexity before the application requires it. Redis, Kubernetes, AWS, and Terraform are introduced later in the roadmap.
+> Kestrel intentionally avoids introducing infrastructure complexity before the application requires it. Redis, Kubernetes, AWS, and Terraform remain deferred to later roadmap phases.
 
 ---
 
 # 🔬 Attack Surface Inventory
 
-One of Kestrel's core concepts is maintaining an aggregated view of the assets discovered during security assessments.
+One of Kestrel's core concepts is maintaining an aggregated view of the assets discovered during security assessments — implemented and queryable today via `GET /targets/{id}/assets`, joining results across every scan ever run against a target.
 
 ```text
 Target
@@ -460,87 +510,114 @@ Target
       └── Application
 ```
 
-Instead of treating every scan as an isolated execution, Kestrel is designed to build a persistent view of the target's observable attack surface over time.
+Instead of treating every scan as an isolated execution, Kestrel builds a persistent view of the target's observable attack surface over time.
 
 ---
 
 # 🚀 Getting Started
 
-> **Current development note:** setup instructions evolve alongside the project. The following workflow reflects the current development environment.
-
 ## Requirements
 
 * Go 1.21+
+* Node.js 18+ (for the web dashboard)
 * Docker
 * Docker Compose
-* PostgreSQL
 * [golang-migrate](https://github.com/golang-migrate/migrate)
 
-## Clone
+### Installing prerequisites
+
+Already have these installed? Skip to [Backend](#backend) below.
+
+<details>
+<summary><strong>Debian / Ubuntu / Kali Linux</strong></summary>
+
+**Go 1.21+** — the version in `apt` is often outdated, so install from the official archive:
+
+```bash
+cd /tmp
+wget https://go.dev/dl/go1.23.4.linux-amd64.tar.gz
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf go1.23.4.linux-amd64.tar.gz
+echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
+source ~/.bashrc
+go version
+```
+
+> Check [go.dev/dl](https://go.dev/dl/) for the current release if `go1.23.4` is no longer the latest.
+
+**Node.js 18+:**
+
+```bash
+node --version   # many distros already ship a recent enough version
+```
+
+If missing or older than 18:
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt install -y nodejs
+node --version
+```
+
+**Docker + Docker Compose:**
+
+```bash
+sudo apt update
+sudo apt install docker.io -y
+sudo systemctl enable --now docker
+sudo usermod -aG docker $USER
+newgrp docker
+docker --version
+docker compose version
+```
+
+**golang-migrate** (requires Go to be installed first):
+
+```bash
+export PATH=$PATH:$(go env GOPATH)/bin
+echo 'export PATH=$PATH:$(go env GOPATH)/bin' >> ~/.bashrc
+go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+migrate -version
+```
+
+</details>
+
+<details>
+<summary><strong>macOS (Homebrew)</strong></summary>
+
+```bash
+brew install go node golang-migrate
+```
+
+Docker on macOS requires [Docker Desktop](https://www.docker.com/products/docker-desktop/) rather than the CLI-only package — install it separately and make sure it's running before `docker compose up`.
+
+</details>
+
+<details>
+<summary><strong>Windows</strong></summary>
+
+Use [WSL2](https://learn.microsoft.com/windows/wsl/install) with an Ubuntu distribution and follow the Debian/Ubuntu instructions above inside it. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) with WSL2 integration enabled rather than installing Docker directly inside WSL.
+
+</details>
+
+## Backend
 
 ```bash
 git clone https://github.com/leomarqueseh/kestrel.git
 cd kestrel
-```
 
-## Configure environment
-
-```bash
 cp .env.example .env
-```
-
-Configure the required environment variables according to your local environment.
-
-## Start PostgreSQL
-
-```bash
 docker compose up -d
-```
 
-## Configure the database
-
-```bash
 export DATABASE_URL="postgres://kestrel:kestrel@localhost:5432/kestrel?sslmode=disable"
-```
+migrate -database "$DATABASE_URL" -path migrations up
 
-## Run migrations
-
-```bash
-migrate \
-  -database "$DATABASE_URL" \
-  -path migrations \
-  up
-```
-
-## Install dependencies
-
-```bash
 go mod tidy
-```
-
-## Create the initial administrator
-
-```bash
-go run ./cmd/seed \
-  -email admin@kestrel.local \
-  -password "change-me"
-```
-
-> **Development only:** never use example credentials in a production environment.
-
-## Start Kestrel
-
-```bash
+go run ./cmd/seed -email admin@kestrel.local -password "change-me"
 make run
 ```
 
-The API will be available at:
-
-```text
-http://localhost:8080
-```
-
-Health check:
+API available at `http://localhost:8080`.
 
 ```bash
 curl http://localhost:8080/health
@@ -549,10 +626,19 @@ curl http://localhost:8080/health
 Expected response:
 
 ```json
-{
-  "status": "ok"
-}
+{"status":"ok","service":"kestrel-api","time":"...","database":"ok"}
 ```
+
+## Frontend
+
+```bash
+cd web
+cp .env.local.example .env.local   # NEXT_PUBLIC_API_URL=http://localhost:8080
+npm install
+npm run dev
+```
+
+Dashboard available at `http://localhost:3000`.
 
 ---
 
@@ -560,24 +646,27 @@ Expected response:
 
 ```text
 kestrel/
-├── api/                 # API definitions and HTTP contracts
-├── cmd/                 # Application entrypoints
-├── configs/             # Application configuration
-├── deployments/         # Deployment manifests
-├── docs/                # Architecture and technical documentation
+├── cmd/
+│   ├── api/              # API entrypoint
+│   └── seed/             # bootstraps the first admin user
+├── docs/                 # architecture and data-model documentation
 ├── internal/
-│   ├── auth/            # Authentication and authorization
-│   ├── project/         # Project management
-│   ├── target/          # Target and scope management
-│   ├── scan/            # Scan orchestration
-│   ├── asset/           # Attack surface assets
-│   ├── recon/           # Reconnaissance
-│   └── enum/            # Enumeration
-├── migrations/          # Database migrations
-├── pkg/                 # Reusable packages
-├── scripts/             # Development scripts
-├── automation/          # Planned Python automation
-├── tests/                # Test suites
+│   ├── auth/              # authentication and RBAC
+│   ├── project/           # project management
+│   ├── target/            # target and scope management
+│   ├── scan/               # scan orchestration
+│   ├── asset/              # attack surface assets
+│   ├── recon/               # reconnaissance
+│   ├── enum/                # port enumeration
+│   ├── nvd/                  # NVD CVE correlation client
+│   ├── finding/               # vulnerability findings + validation
+│   ├── evidence/               # evidence attached to findings
+│   ├── report/                  # report generation
+│   ├── dashboard/                # aggregate summary
+│   └── platform/postgres/         # DB connection pool
+├── migrations/            # database migrations
+├── web/                    # Next.js frontend
+├── automation/              # planned Python automation
 ├── Makefile
 ├── ARCHITECTURE.md
 ├── CHANGELOG.md
@@ -595,7 +684,7 @@ Kestrel is designed around a simple principle:
 
 > **A finding is more than a scanner output.**
 
-A mature assessment should establish:
+A mature assessment establishes:
 
 ```text
 Observation
@@ -613,7 +702,7 @@ Remediation
 Retest
 ```
 
-This approach aims to reduce false positives, improve reporting quality, and create an assessment record that can be understood by both security engineers and stakeholders.
+This principle is enforced in code, not just in documentation: a finding cannot become `confirmed` in Kestrel without evidence attached in the same request.
 
 ---
 
