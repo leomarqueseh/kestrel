@@ -236,7 +236,14 @@ Kestrel doesn't claim uniform, high-confidence automated detection for every ent
 <details open>
 <summary><strong>Tier 1 — parameter fuzzing, path scanning, header inspection (buildable on the current architecture)</strong></summary>
 
-Open Redirect · XSS Reflected · SQL Injection (error-based) · NoSQL Injection · LDAP Injection · XPath Injection · LFI / Path Traversal · Host Header Injection · HTTP Parameter Pollution · CRLF Injection · SSTI · CORS Misconfiguration · Security Headers Misconfiguration · Exposed `.git` · Exposed `.env` / sensitive files · Directory Listing · Debug Mode / Verbose Errors · Forced Browsing · CSRF (missing protection)
+Open Redirect · XSS Reflected · SQL Injection (error-based) · NoSQL Injection · LDAP Injection · XPath Injection · LFI / Path Traversal · Host Header Injection · HTTP Parameter Pollution · CRLF Injection · SSTI · CORS Misconfiguration · Security Headers Misconfiguration · Exposed `.git` · Exposed `.env` / sensitive files · Directory Listing · Debug Mode / Verbose Errors · Forced Browsing · CSRF (missing protection) · **Sensitive service exposed by port** (Redis, MongoDB, Elasticsearch, Docker API, Kubernetes API, Memcached, VNC, Telnet — reachability itself is the risk, independent of CVE data) ✅
+
+</details>
+
+<details open>
+<summary><strong>Passive URL collection (feeds the Tier 1 fuzzing engine)</strong></summary>
+
+Candidate URLs are gathered two ways: passively via [`gau`](https://github.com/lc/gau) (queries Wayback Machine, Common Crawl, and AlienVault OTX — no traffic to the target itself) ✅, or from a list submitted directly by the analyst ✅. Both paths are scope-filtered to the authorized target's host before anything downstream touches them.
 
 </details>
 
@@ -417,6 +424,10 @@ Audit / Evidence    → confirmed findings require attached evidence
 | 06    | Reconnaissance — DNS, subdomains, HTTP discovery                |    ✅   |
 | 07    | Enumeration — ports, services, attack surface inventory          |    ✅   |
 | 08    | Vulnerability assessment — NVD correlation, real CVSS scoring    |    ✅   |
+| 08b   | Passive URL collection (`gau` + manual submission) ✅, sensitive-service-by-port detector ✅ — Open Redirect, XSS, LFI, SQLi, exposed `.git`/`.env`, security headers, CORS still pending |    🚧   |
+| 08c   | Tier 1 detectors, batch 2 — NoSQLi, LDAP, XPath, HPP, CRLF, Host Header Injection, SSTI, CSRF, Forced Browsing |    ⏳   |
+| 08d   | Tier 2 detectors — out-of-band listener (SSRF, XXE), time-based Command Injection, TLS configuration inspection |    ⏳   |
+| 08e   | Access Control Engine (Tier 3) — IDOR, BOLA, BFLA, Session Fixation via dual-session comparison |    ⏳   |
 | 09    | Security validation — potential finding → confirmed/rejected     |    ✅   |
 | 10    | Reporting — methodology, findings, evidence, remediation (HTML/JSON) |    ✅   |
 
@@ -482,7 +493,7 @@ Audit / Evidence    → confirmed findings require attached evidence
 
 # 🔬 Attack Surface Inventory
 
-One of Kestrel's core concepts is maintaining an aggregated view of the assets discovered during security assessments — implemented and queryable today via `GET /targets/{id}/assets`, joining results across every scan ever run against a target.
+One of Kestrel's core concepts is maintaining an aggregated view of the assets discovered during security assessments — implemented and queryable today via `GET /targets/{id}/assets`, joining results across every scan ever run against a target. The full port catalog and taxonomy behind enumeration live in [`docs/ports.md`](docs/ports.md).
 
 ```text
 Target
